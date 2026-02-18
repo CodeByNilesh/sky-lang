@@ -1,0 +1,11 @@
+let active = true
+
+if active {
+    print("Sky is active")
+}
+
+for i in 0..5 {
+    print(i)
+}
+
+print("for loop done")
