@@ -1,0 +1,34 @@
+﻿name: Build Sky
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: gcc -O2 -std=c11 -o sky.exe src/main.c src/lexer.c src/parser.c src/ast.c src/analyzer.c src/compiler.c src/vm.c src/value.c src/table.c src/memory.c src/debug.c src/module.c src/runtime/http_server.c src/runtime/security.c src/runtime/db.c src/runtime/jwt.c src/runtime/crypto.c src/runtime/async.c -lws2_32 -ladvapi32
+      - name: Test Version
+        run: .\sky.exe version
+      - name: Test Check
+        run: .\sky.exe check tests\samples\hello.sky
+      - name: Test Run
+        run: .\sky.exe run test.sky
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: gcc -O2 -std=c11 -o sky src/*.c src/runtime/*.c -lpthread -lm
+      - name: Test Version
+        run: ./sky version
+      - name: Test Check
+        run: ./sky check tests/samples/hello.sky
+      - name: Test Run
+        run: ./sky run test.sky
