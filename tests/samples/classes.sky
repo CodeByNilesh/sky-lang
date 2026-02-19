@@ -1,0 +1,31 @@
+class User {
+    name string
+    email string
+    age int
+
+    fn create(name string, email string, age int) User {
+        return User{name, email, age}
+    }
+
+    fn display(self) {
+        print(self.name + " (" + self.email + ") age " + str(self.age))
+    }
+
+    fn is_adult(self) bool {
+        return self.age >= 18
+    }
+}
+
+let user1 = User.create("Alice", "alice@sky.dev", 28)
+let user2 = User.create("Bob", "bob@sky.dev", 16)
+
+user1.display()
+user2.display()
+
+if user1.is_adult() {
+    print(user1.name + " is an adult")
+}
+
+if not user2.is_adult() {
+    print(user2.name + " is a minor")
+}

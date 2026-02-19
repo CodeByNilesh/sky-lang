@@ -1,0 +1,41 @@
+import db
+import jwt
+
+server api on 3000 {
+
+    route GET "/health" {
+        respond 200 json({"status": "ok", "version": "1.0"})
+    }
+
+    route GET "/users" {
+        let users = db.query("SELECT * FROM users")
+        respond 200 json(users)
+    }
+
+    route POST "/register" {
+        let body = request.body
+
+        if not body.name or not body.email {
+            respond 400 json({"error": "missing fields"})
+        }
+
+        let hash = crypto.hash(body.password)
+        respond 201 json({"msg": "created"})
+    }
+
+    route POST "/login" {
+        let body = request.body
+        let user = db.find("users", body.email)
+
+        if verify(user.password, body.password) {
+            let token = jwt.sign(user.id)
+            respond 200 json({"token": token})
+        }
+
+        respond 401 json({"error": "unauthorized"})
+    }
+
+    route GET "/protected" [auth] {
+        respond 200 json({"msg": "welcome", "user": request.user})
+    }
+}
