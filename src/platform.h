@@ -6,11 +6,12 @@
     #ifndef _WIN32_WINNT
         #define _WIN32_WINNT 0x0600
     #endif
-    #include <windows.h>
     #include <winsock2.h>
     #include <ws2tcpip.h>
+    #include <windows.h>
     #include <io.h>
     #include <process.h>
+    #include <stdio.h>
     #include <string.h>
 
     typedef HANDLE sky_thread_t;
@@ -69,10 +70,6 @@
     #define strncasecmp _strnicmp
     #define sky_close_socket closesocket
 
-    #ifndef ssize_t
-        typedef int ssize_t;
-    #endif
-
     static inline void sky_platform_init(void) {
         WSADATA wsa;
         WSAStartup(MAKEWORD(2, 2), &wsa);
@@ -81,27 +78,22 @@
         WSACleanup();
     }
 
-    /* Simple inet_ntop replacement for old MinGW */
     static inline const char* sky_inet_ntop_impl(int af, const void *src, char *dst, int size) {
-        struct in_addr *addr = (struct in_addr*)src;
-        unsigned char *bytes;
+        unsigned char *bytes = (unsigned char*)src;
         (void)af;
-        bytes = (unsigned char*)addr;
         snprintf(dst, size, "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2], bytes[3]);
         return dst;
     }
     #define inet_ntop sky_inet_ntop_impl
 
-    /* Simple inet_pton replacement for old MinGW */
     static inline int sky_inet_pton_impl(int af, const char *src, void *dst) {
         unsigned int a, b, c, d;
-        struct in_addr *addr = (struct in_addr*)dst;
         (void)af;
         if (sscanf(src, "%u.%u.%u.%u", &a, &b, &c, &d) != 4) return 0;
-        ((unsigned char*)addr)[0] = (unsigned char)a;
-        ((unsigned char*)addr)[1] = (unsigned char)b;
-        ((unsigned char*)addr)[2] = (unsigned char)c;
-        ((unsigned char*)addr)[3] = (unsigned char)d;
+        ((unsigned char*)dst)[0] = (unsigned char)a;
+        ((unsigned char*)dst)[1] = (unsigned char)b;
+        ((unsigned char*)dst)[2] = (unsigned char)c;
+        ((unsigned char*)dst)[3] = (unsigned char)d;
         return 1;
     }
     #define inet_pton sky_inet_pton_impl
